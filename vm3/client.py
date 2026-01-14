@@ -16,25 +16,40 @@ def receive_messages(client_socket):
             print(message.decode())
         except: break
 
+import time  # N'oubliez pas d'importer time en haut du fichier
+# ... (imports existants)
+
 def start_client():
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        client.connect((SERVER_HOST, SERVER_PORT))
-        print(f"Connecté au serveur {SERVER_HOST}:{SERVER_PORT}")
-    except Exception as e:
-        print(f"Impossible de se connecter au serveur : {e}")
-        return
-
-    threading.Thread(target=receive_messages, args=(client,)).start()
-
+    """Tente de se connecter au serveur avec des réessais."""
+    print(f"Tentative de connexion à {SERVER_HOST}:{SERVER_PORT}...")
+    
+    client = None
     while True:
         try:
-            message = input("")
-            if message.lower() == 'exit': break
+            # On recrée le socket à chaque tentative
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((SERVER_HOST, SERVER_PORT))
+            print(f"Connecté au serveur à {SERVER_HOST}:{SERVER_PORT}")
+            break  # Connexion réussie, on sort de la boucle
+        except Exception as e:
+            print(f"Echec de connexion ({e}). Nouvelle tentative dans 2 secondes...")
+            time.sleep(2)
+
+    # Start a thread to listen for messages from the server
+    threading.Thread(target=receive_messages, args=(client,)).start()
+
+    # Continuously send messages to the server
+    while True:
+        try:
+            message = input("")  
+            if message.lower() == 'exit':
+                break
             client.send(message.encode())
-        except EOFError: # Gestion de l'erreur si le container n'a pas de TTY interactif
+        except (EOFError, KeyboardInterrupt):
             break
-            
+        except OSError:
+            break
+
     client.close()
 
 if __name__ == "__main__":
