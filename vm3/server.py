@@ -2,7 +2,7 @@ import socket
 
 # 0.0.0.0 est crucial pour écouter toutes les interfaces dans le container
 HOST = '0.0.0.0'  
-PORT = 65432
+PORT = 5000
 
 print("--- Le serveur écoute ---")
 
