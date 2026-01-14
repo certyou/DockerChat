@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   registry:
     image: registry:2
@@ -5,22 +7,16 @@ services:
       - "5000:5000"
     restart: always
 
-  # 2. Le Serveur de Chat
-  chat-server:
+  p2p-node-a:
     build: .
-    image: localhost:5000/chat-app:v1
+    image: localhost:5000/chat-p2p:v1 # On nomme la nouvelle image P2P
     ports:
-      - "6000:5000"
-    depends_on:
-      - registry
-
-  chat-client-local:
-    image: localhost:5000/chat-app:v1
-    command: python client.py
+      - "6000:6000" # Expose le port 6000 de la VM vers le conteneur
     stdin_open: true
     tty: true
     environment:
-      - SERVER_HOST=chat-server # Utilise le nom du service Docker interne
-      - SERVER_PORT=5000
+      - MY_PORT=6000          # J'écoute sur 6000
+      - PEER_IP=192.168.1.2   # Je parle à la VM1
+      - PEER_PORT=6000        # Sur son port 6000
     depends_on:
-      - chat-server
+      - registry
