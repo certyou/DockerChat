@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   registry:
     image: registry:2
@@ -7,16 +5,30 @@ services:
       - "5000:5000"
     restart: always
 
-  p2p-node-a:
+  p2p-node-1:
     build: .
-    image: localhost:5000/chat-p2p:v1 # On nomme la nouvelle image P2P
+    image: localhost:5000/chat-p2p:v1
     ports:
-      - "6000:6000" # Expose le port 6000 de la VM vers le conteneur
+      - "6001:6000"
     stdin_open: true
     tty: true
     environment:
-      - MY_PORT=6000          # J'écoute sur 6000
-      - PEER_IP=192.168.1.2   # Je parle à la VM1
-      - PEER_PORT=6000        # Sur son port 6000
+      - MY_PORT=6001
+      - PEER_IP=p2p-node-2
+      - PEER_PORT=6002
+    depends_on:
+      - registry
+
+  p2p-node-2:
+    build: .
+    image: localhost:5000/chat-p2p:v1
+    ports:
+      - "6002:6000"
+    stdin_open: true
+    tty: true
+    environment:
+      - MY_PORT=6002
+      - PEER_IP=192.168.200.13
+      - PEER_PORT=6003
     depends_on:
       - registry

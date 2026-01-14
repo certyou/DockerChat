@@ -1,13 +1,22 @@
-version: '3.8'
-
 services:
-  p2p-node-b:
-    image: 192.168.1.3:5000/chat-p2p:v1 # Récupère l'image depuis VM3
+  p2p-node-3:
+    image: 192.168.1.3:5000/chat-p2p:v1
     ports:
-      - "6000:6000" # Expose le port 6000 de VM1
+      - "6003:6000"
     stdin_open: true
     tty: true
     environment:
-      - MY_PORT=6000          # J'écoute sur 6000
-      - PEER_IP=192.168.1.3   # Je parle à la VM3
-      - PEER_PORT=6000        # Sur son port 6000
+      - MY_PORT=6003
+      - PEER_IP=p2p-node-4
+      - PEER_PORT=6004
+
+  p2p-node-4:
+    image: 192.168.1.3:5000/chat-p2p:v1
+    ports:
+      - "6004:6000"
+    stdin_open: true
+    tty: true
+    environment:
+      - MY_PORT=6004
+      - PEER_IP=192.168.200.17
+      - PEER_PORT=6001
