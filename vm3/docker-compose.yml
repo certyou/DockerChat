@@ -1,0 +1,26 @@
+services:
+  registry:
+    image: registry:2
+    ports:
+      - "5000:5000"
+    restart: always
+
+  # 2. Le Serveur de Chat
+  chat-server:
+    build: .
+    image: localhost:5000/chat-app:v1
+    ports:
+      - "6000:5000"
+    depends_on:
+      - registry
+
+  chat-client-local:
+    image: localhost:5000/chat-app:v1
+    command: python client.py
+    stdin_open: true
+    tty: true
+    environment:
+      - SERVER_HOST=chat-server # Utilise le nom du service Docker interne
+      - SERVER_PORT=5000
+    depends_on:
+      - chat-server
